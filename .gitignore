@@ -25,3 +25,4 @@ cabal.project.local~
 .local/
 .env
 icfpc2026.cabal
+stack.yaml.lock
