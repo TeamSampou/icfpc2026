@@ -21,7 +21,6 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
-- dotenv
 
 ghc-options:
 - -Wall
@@ -47,6 +46,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - icfpc2026
+    - dotenv
 
 tests:
   icfpc2026-test:
@@ -58,3 +58,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - icfpc2026
+    - dotenv
