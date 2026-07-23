@@ -24,5 +24,4 @@ cabal.project.local~
 .ghc.environment.*
 .local/
 .env
-icfpc2026.cabal
 stack.yaml.lock
