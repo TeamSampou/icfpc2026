@@ -27,6 +27,7 @@ library
   exposed-modules:
       Exam
       Lib
+      TypesJSON
   other-modules:
       Paths_icfpc2026
   autogen-modules:
