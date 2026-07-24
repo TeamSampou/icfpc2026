@@ -40,6 +40,7 @@ library
     , base >=4.7 && <5
     , bytestring
     , containers
+    , filepath
   default-language: Haskell2010
 
 executable icfpc2026-exe
@@ -56,6 +57,7 @@ executable icfpc2026-exe
     , bytestring
     , containers
     , dotenv
+    , filepath
     , icfpc2026
   default-language: Haskell2010
 
@@ -74,5 +76,6 @@ test-suite icfpc2026-test
     , bytestring
     , containers
     , dotenv
+    , filepath
     , icfpc2026
   default-language: Haskell2010
