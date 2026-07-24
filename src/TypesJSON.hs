@@ -1,4 +1,5 @@
 {-# LANGUAGE DeriveGeneric #-}
+{-# OPTIONS -Wno-missing-export-lists #-}
 
 module TypesJSON where
 
