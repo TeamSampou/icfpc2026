@@ -26,6 +26,7 @@ source-repository head
 library
   exposed-modules:
       Exam
+      FilesJSON
       Lib
       TypesJSON
   other-modules:
@@ -38,7 +39,9 @@ library
   build-depends:
       aeson
     , base >=4.7 && <5
+    , bytestring
     , containers
+    , filepath
   default-language: Haskell2010
 
 executable icfpc2026-exe
@@ -52,8 +55,10 @@ executable icfpc2026-exe
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , dotenv
+    , filepath
     , icfpc2026
   default-language: Haskell2010
 
@@ -69,7 +74,9 @@ test-suite icfpc2026-test
   ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -threaded -rtsopts -with-rtsopts=-N
   build-depends:
       base >=4.7 && <5
+    , bytestring
     , containers
     , dotenv
+    , filepath
     , icfpc2026
   default-language: Haskell2010
