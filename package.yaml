@@ -24,6 +24,9 @@ dependencies:
 - bytestring
 - containers
 - filepath
+- directory
+
+language: GHC2024
 
 ghc-options:
 - -Wall
@@ -52,6 +55,12 @@ executables:
     dependencies:
     - icfpc2026
     - dotenv
+
+  add-entry:
+    main:                Main.hs
+    source-dirs:         app/zzz/add-entry
+    dependencies:
+    - icfpc2026
 
 tests:
   icfpc2026-test:

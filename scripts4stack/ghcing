@@ -1,0 +1,8 @@
+#!/bin/bash
+
+source .curname
+if type "ghcitty" > /dev/null 2>&1; then
+    ghcitty -- app/$CURRENT_STACK_EXE_ENTRY/Main.hs
+else
+    stack exec -- ghci app/$CURRENT_STACK_EXE_ENTRY/Main.hs
+fi
