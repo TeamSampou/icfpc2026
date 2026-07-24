@@ -2,7 +2,6 @@
 
 module TypesJSON where
 
-import Control.Applicative
 import Data.Char (toLower)
 import Data.List (stripPrefix)
 import GHC.Generics
