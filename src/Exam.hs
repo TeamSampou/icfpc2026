@@ -1,47 +1,81 @@
 module Exam () where
 
+data Instr
+  = R
+  | S
+  | Lit Integer
+  | M
+  | W
+  | Add
+  | Sub
+  | Mul
+  | Div
+  | Neg
+  | Halt
+  | Man
+  deriving Eq
+
+instance Show Instr where
+  show R       = "R"
+  show S       = "S"
+  show (Lit n) = lit n
+  show M       = "M"
+  show W       = "W"
+  show Add     = "+"
+  show Sub     = "-"
+  show Mul     = "*"
+  show Div     = "/"
+  show Neg     = "-"
+  show Man     = "@"
+  show Halt    = "H"
+
+pack :: [Instr] -> String
+pack instrs = concatMap show instrs'
+  where instrs' = [Man] ++ instrs ++ [Halt]
+
 lit :: Integer -> String
 lit n | n < 10 = show n
       | otherwise = "`" ++ show n ++ "`"
 
 -- r + r
-add2 :: String
-add2 = "@RMR+SH"
-
--- r + n or n + r
-add1 :: Integer -> String
-add1 n = "@" ++ lit n ++ "MR+SH"
+addrr :: [Instr]
+addrr = [R, M, R, W, Add, S]
+-- n + r
+addnr :: Integer -> [Instr]
+addnr n = [Lit n, M, R, W, Add, S]
+-- r + n
+addrn :: Integer -> [Instr]
+addrn n = [R, M, Lit n, W, Add, S]
 
 -- r - r
-sub2 :: String
-sub2 = "@RMR-SH"
-
--- r - n
-sub1l :: Integer -> String
-sub1l n = "@" ++ lit n ++ "MR-SH"
+subrr :: [Instr]
+subrr = [R, M, R, W, Sub, S]
 -- n - r
-sub1r :: Integer -> String
-sub1r n = "@" ++ lit n ++ "MRW-SH"
-
+subnr :: Integer -> [Instr]
+subnr n = [Lit n, M, R, W, Sub, S]
+-- r - n
+subrn :: Integer -> [Instr]
+subrn n = [R, M, Lit n, W, Sub, S]
 
 -- r * r
-mul2 :: String
-mul2 = "@RMR*SH"
-
--- x * n or n * x
-mul1 :: Integer -> String
-mul1 n = "@" ++ lit n ++ "MR*SH"
+mulrr :: [Instr]
+mulrr = [R, M, R, W, Mul, S]
+-- n * r
+mulnr :: Integer -> [Instr]
+mulnr n = [Lit n, M, R, W, Mul, S]
+-- r * n
+mulrn :: Integer -> [Instr]
+mulrn n = [R, M, Lit n, W, Mul, S]
 
 -- r / r
-div2 :: String
-div2 = "@RMR/SH"
--- r / n
-div1l :: Integer -> String
-div1l n = "@" ++ lit n ++ "MR/SH"
+divrr :: [Instr]
+divrr = [R, M, R, W, Div, S]
 -- n / r
-div1r :: Integer -> String
-div1r n = "@" ++ lit n ++ "MRW/SH"
+divnr :: Integer -> [Instr]
+divnr n = [Lit n, M, R, W, Div, S]
+-- r / n
+divrn :: Integer -> [Instr]
+divrn n = [R, M, Lit n, W, Div, S]
 
-
-fanOut :: String
-fanOut = "@RSH"
+fanOut :: [Instr]
+fanOut = [R, S]
