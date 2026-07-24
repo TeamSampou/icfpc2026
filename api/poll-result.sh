@@ -11,3 +11,4 @@ fi
 
 curl https://icfpcontest2026.com/api/v1/submissions/"$sid" \
   -H "Authorization: Bearer $API_KEY"
+echo ''
