@@ -35,9 +35,6 @@ ghc-options:
 
 library:
   source-dirs: src
-  exposed-modules:
-  - Lib
-  - Exam
 
 executables:
   icfpc2026-exe:
@@ -49,6 +46,7 @@ executables:
     - -with-rtsopts=-N
     dependencies:
     - icfpc2026
+    - dotenv
 
 tests:
   icfpc2026-test:
@@ -60,3 +58,4 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - icfpc2026
+    - dotenv
