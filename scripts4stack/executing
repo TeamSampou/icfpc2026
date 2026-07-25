@@ -1,5 +1,5 @@
 #!/bin/bash
 
 source .curname
-./building
+scripts4stack/building
 stack exec -- $CURRENT_STACK_EXE_ENTRY $1

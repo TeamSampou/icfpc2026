@@ -63,6 +63,24 @@ executable add-entry
     , icfpc2026
   default-language: GHC2024
 
+executable history-lesson
+  main-is: Main.hs
+  other-modules:
+      Paths_icfpc2026
+  autogen-modules:
+      Paths_icfpc2026
+  hs-source-dirs:
+      app/history-lesson
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -rtsopts
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , containers
+    , directory
+    , filepath
+    , icfpc2026
+  default-language: GHC2024
+
 executable icfpc2026-exe
   main-is: Main.hs
   other-modules:
