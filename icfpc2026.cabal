@@ -43,7 +43,7 @@ library
     , containers
     , directory
     , filepath
-  default-language: Haskell2010
+  default-language: GHC2024
 
 executable add-entry
   main-is: Main.hs
@@ -61,7 +61,7 @@ executable add-entry
     , directory
     , filepath
     , icfpc2026
-  default-language: Haskell2010
+  default-language: GHC2024
 
 executable icfpc2026-exe
   main-is: Main.hs
@@ -80,7 +80,7 @@ executable icfpc2026-exe
     , dotenv
     , filepath
     , icfpc2026
-  default-language: Haskell2010
+  default-language: GHC2024
 
 test-suite icfpc2026-test
   type: exitcode-stdio-1.0
@@ -100,4 +100,4 @@ test-suite icfpc2026-test
     , dotenv
     , filepath
     , icfpc2026
-  default-language: Haskell2010
+  default-language: GHC2024
