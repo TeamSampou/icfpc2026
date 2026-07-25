@@ -1,81 +1,150 @@
 module Exam () where
 
-data Instr
-  = R
-  | S
-  | Lit Integer
-  | M
-  | W
-  | Add
-  | Sub
-  | Mul
-  | Div
-  | Neg
-  | Halt
-  | Man
-  deriving Eq
+import Data.Map (Map)
+import Data.Set (Set)
+
+import Prelude hiding (div, subtract)
+
+-- | 一旦 R や S だけ考える。近い遠いは気にせず拾えた順に第1引数第2引数として R で処理する
+data Instr = Lit Integer -- 0-9
+           | Add   -- ^ + : regA := regA + regB
+           | Mul   -- ^ * : regA := regA * regB
+           | Sub   -- ^ - : regA := regA - regB
+           | Div   -- ^ % : regA := regA % regB, regB := reminder of (regA / regB)
+           | Swap  -- ^ W : regA := regB, regB := regA
+           | Copy  -- ^ M : regB := regA
+           | Receive -- ^ R
+           | Send    -- ^ S
+           deriving (Ord, Eq)
 
 instance Show Instr where
-  show R       = "R"
-  show S       = "S"
-  show (Lit n) = lit n
-  show M       = "M"
-  show W       = "W"
+  show (Lit n) = show n
   show Add     = "+"
-  show Sub     = "-"
   show Mul     = "*"
+  show Sub     = "-"
   show Div     = "/"
-  show Neg     = "-"
-  show Man     = "@"
-  show Halt    = "H"
+  show Swap    = "W"
+  show Copy    = "M"
+  show Receive = "R"
+  show Send    = "S"
 
-pack :: [Instr] -> String
-pack instrs = concatMap show instrs'
-  where instrs' = [Man] ++ instrs ++ [Halt]
 
-lit :: Integer -> String
-lit n | n < 10 = show n
-      | otherwise = "`" ++ show n ++ "`"
+genInstrsCommutable :: Instr -> Integer -> [Instr]
+genInstrsCommutable op n
+  = [ Receive -- ^regA : x, regB : ?
+    , Copy    -- ^regA : x, regB : x
+    , Lit n   -- ^regA : n, regB : x
+    , op      -- ^regA : n `op` x, regB : x
+    , Send    -- ^n `op` x
+    ]
 
--- r + r
-addrr :: [Instr]
-addrr = [R, M, R, W, Add, S]
--- n + r
-addnr :: Integer -> [Instr]
-addnr n = [Lit n, M, R, W, Add, S]
--- r + n
-addrn :: Integer -> [Instr]
-addrn n = [R, M, Lit n, W, Add, S]
+-- | \x -> x + n
+-- commutable
+add :: Integer -> [Instr]
+add = genInstrsCommutable Add
 
--- r - r
-subrr :: [Instr]
-subrr = [R, M, R, W, Sub, S]
--- n - r
-subnr :: Integer -> [Instr]
-subnr n = [Lit n, M, R, W, Sub, S]
--- r - n
-subrn :: Integer -> [Instr]
-subrn n = [R, M, Lit n, W, Sub, S]
+-- | \x -> x * n
+-- commutable
+mul :: Integer -> [Instr]
+mul = genInstrsCommutable Mul
 
--- r * r
-mulrr :: [Instr]
-mulrr = [R, M, R, W, Mul, S]
--- n * r
-mulnr :: Integer -> [Instr]
-mulnr n = [Lit n, M, R, W, Mul, S]
--- r * n
-mulrn :: Integer -> [Instr]
-mulrn n = [R, M, Lit n, W, Mul, S]
+genInstrsIncommutable :: Instr -> Integer -> [Instr]
+genInstrsIncommutable op n
+  = [ Receive -- ^regA : x, regB : ?
+    , Copy    -- ^regA : x, regB : x
+    , Lit n   -- ^regA : n, regB : x
+    , Swap    -- ^regA : x, regB : n
+    , op      -- ^regA : x `op` n, regB : n
+    , Send    -- ^x `op` n
+    ]
 
--- r / r
-divrr :: [Instr]
-divrr = [R, M, R, W, Div, S]
--- n / r
-divnr :: Integer -> [Instr]
-divnr n = [Lit n, M, R, W, Div, S]
--- r / n
-divrn :: Integer -> [Instr]
-divrn n = [R, M, Lit n, W, Div, S]
+-- | \x -> x - n
+sub :: Integer -> [Instr]
+sub = genInstrsIncommutable Sub
 
-fanOut :: [Instr]
-fanOut = [R, S]
+-- | \x -> x / n
+div :: Integer -> [Instr]
+div = genInstrsIncommutable Div
+
+genInstrsCommutableBin :: Instr -> [Instr]
+genInstrsCommutableBin op
+  = [ Receive -- ^regA : x, regB : ?
+    , Copy    -- ^regA : x, regB : x
+    , Receive -- ^regA : y, regB : x
+    , op      -- ^regA : y `op` x, regB : x
+    , Send    -- ^y `op` x
+    ]
+
+plus :: [Instr]
+plus = genInstrsCommutableBin Add
+
+times :: [Instr]
+times = genInstrsCommutableBin Mul
+
+genInstrsIncommutableBin :: Instr -> [Instr]
+genInstrsIncommutableBin op
+  = [ Receive -- ^regA : x, regB : ?
+    , Copy    -- ^regA : x, regB : x
+    , Receive -- ^regA : y, regB : x
+    , Swap    -- ^regA : x, regB : y
+    , op      -- ^regA : x `op` y, regB : y
+    , Send    -- ^x `op` y
+    ]
+
+subtract :: [Instr]
+subtract = genInstrsIncommutableBin Sub
+
+divide :: [Instr]
+divide = genInstrsIncommutableBin Div
+
+commutable :: Instr -> Bool
+commutable Add = True
+commutable Mul = True
+commutable Sub = False
+commutable Div = False
+commutable op  = error $ "commutable can't judge for: " ++ show op
+
+-- S combinator
+-- S f g x = f x (g x)
+starling :: [Instr] -> [Instr] -> Maybe [Instr]
+-- op1 and op2 are commutable
+starling [Receive, Copy, Receive, op2, Send] [Receive, Copy, Lit n, op1, Send]
+  = Just [ Receive  -- ^regA : x, regB : ?
+         , Copy     -- ^regA : x, regB : x
+         , Lit n    -- ^regA : n, regB : x
+         , op1      -- ^regA : n op1 x, regB : x
+         , op2      -- ^regA : (n op1 x) op2 x, regB : x
+         , Send     -- ^(n op1 x) op2 x
+         ]
+-- only op1 is commutable
+starling [Receive, Copy, Receive, Swap, op2, Send] [Receive, Copy, Lit n, op1, Send]
+  = Just [ Receive  -- ^regA : x, regB : ?
+         , Copy     -- ^regA : x, regB : x
+         , Lit n    -- ^regA : n, regB : x
+         , op1      -- ^regA : n op1 x, regB : x
+         , Swap     -- ^regA : x, regB : n op1 x
+         , op2      -- ^regA : x op2 (n op1 x), regB : n op1 x
+         , Send     -- ^x op2 (n op1 x)
+         ]
+starling _ _ = Nothing
+
+-- B combinator
+-- B f g x = f (g x)
+kestrel :: [Instr] -> [Instr] -> Maybe [Instr]
+-- op1 and op2 are commutable
+kestrel f g = go [] (g ++ f)
+  where go acc [] = Just (reverse acc)
+        go acc (op:Send:Receive:Copy:is)
+          | commutable op = go (Copy:op:acc) is
+          | otherwise    = Nothing
+        go acc (op:ops) = go (op:acc) ops
+
+triangle :: Maybe [Instr]
+triangle = do
+  p <- starling times (add 1)
+  kestrel (div 2) p
+
+main :: IO ()
+main = case triangle of
+  Just instrs -> putStrLn $ "@" ++ concatMap show instrs ++ "H"
+  Nothing     -> putStrLn "Failed to generate instructions."
