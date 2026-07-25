@@ -21,7 +21,12 @@ description:         Please see the README on GitHub at <https://github.com/gith
 
 dependencies:
 - base >= 4.7 && < 5
+- bytestring
 - containers
+- filepath
+- directory
+
+language: GHC2024
 
 ghc-options:
 - -Wall
@@ -36,6 +41,8 @@ ghc-options:
 
 library:
   source-dirs: src
+  dependencies:
+  - aeson
 
 executables:
   icfpc2026-exe:
@@ -48,6 +55,12 @@ executables:
     dependencies:
     - icfpc2026
     - dotenv
+
+  add-entry:
+    main:                Main.hs
+    source-dirs:         app/zzz/add-entry
+    dependencies:
+    - icfpc2026
 
 tests:
   icfpc2026-test:
