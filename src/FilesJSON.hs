@@ -77,6 +77,26 @@ searchNames w = do
     search p = w `isInfixOf` pstatSlug p || w `isInfixOf` lower (pstatName p)
     lower = map toLower
 
+pp1Problem' :: String -> String -> String -> String -> String
+pp1Problem' = printf "%-16s%-16s%-13s%s"
+
+pp1Problem :: Problem -> String
+pp1Problem p = pp1Problem' (probSlug p) (probScoring p) setName desc
+  where
+    name = q (probName p)
+    setName = case probProblemSetName p of
+      "Practice Problems (Ungraded)"  -> "'(Ungraded)'"
+      sn                              -> q sn
+    q s = "'" ++ s ++ "'"
+    desc = take 40 $ intercalate " " $ lines $ probDescription p
+
+viewProblems :: IO ()
+viewProblems = do
+  ps <- loadProblemList
+  let hd = pp1Problem' "slug" "scoring" "problem-set" "description"
+      xs = map pp1Problem $ sortOn probProblemSetName ps
+  mapM_ putStrLn $ hd : "" : xs
+
 submit' :: ProbStat -> Maybe String -> IO ()
 submit' ps mayFn = do
       hPutStrLn stderr $ "** generating submission request for '" ++ tag ++ "'"
