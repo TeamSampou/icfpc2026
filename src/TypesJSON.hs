@@ -3,6 +3,7 @@
 
 module TypesJSON where
 
+import Control.Applicative
 import Data.Char (toLower)
 import Data.List (stripPrefix)
 import GHC.Generics
@@ -49,33 +50,82 @@ instance FromJSON ProbStat where
 
 data ProbIO =
   ProbIO
-  { pioInput :: Object
-  , pioOutput :: Object
-  , pioConstraints :: [String]
+  { pioInput       :: Value
+  , pioOutput      :: Maybe Value
+  , pioDisplay     :: Maybe Value
+  , pioConstraints :: Maybe [String]
   }
   deriving (Show, Generic)
 
 instance ToJSON ProbIO where
-  toEncoding = genericToEncoding (customOptions "pio")
+  toEncoding = genericToEncoding ((customOptions "pio"){omitNothingFields = True})
 
 instance FromJSON ProbIO where
   parseJSON = genericParseJSON (customOptions "pio")
 
 -- ------------------------------------------------------------------------
 
-data ProbTestData =
-   ProbTestData
-  { ptdataName :: String
-  , ptdataIn   :: [String]
-  , ptdataOut  :: [String]
+data TDSingle =
+  TDSingle
+  { tdsingleName :: String
+  , tdsingleIn   :: [String]
+  , tdsingleOut  :: [String]
   }
   deriving (Show, Generic)
 
+instance ToJSON TDSingle where
+  toEncoding = genericToEncoding (customOptions "tdsingle")
+
+instance FromJSON TDSingle where
+  parseJSON = genericParseJSON (customOptions "tdsingle")
+
+-- -----
+
+data Round1 =
+  Round1
+  { round1In  :: [String]
+  , round1Out :: [String]
+  }
+  deriving (Show, Generic)
+
+
+instance ToJSON Round1 where
+  toEncoding = genericToEncoding (customOptions "round1")
+
+instance FromJSON Round1 where
+  parseJSON = genericParseJSON (customOptions "round1")
+
+-- -----
+
+data TDRounds =
+  TDRounds
+  { tdroundsName :: String
+  , tdroundsRounds :: [Round1]
+  }
+  deriving (Show, Generic)
+
+instance ToJSON TDRounds where
+  toEncoding = genericToEncoding (customOptions "tdrounds")
+
+instance FromJSON TDRounds where
+  parseJSON = genericParseJSON (customOptions "tdrounds")
+
+-- -----
+
+data ProbTestData
+  = PTDSingle TDSingle
+  | PTDRounds TDRounds
+  deriving (Show, Generic)
+
 instance ToJSON ProbTestData where
-  toEncoding = genericToEncoding (customOptions "ptdata")
+  toEncoding (PTDSingle single) = toEncoding single
+  toEncoding (PTDRounds rounds) = toEncoding rounds
 
 instance FromJSON ProbTestData where
-  parseJSON = genericParseJSON (customOptions "ptdata")
+  parseJSON v =
+    PTDSingle <$> parseJSON v
+    <|>
+    PTDRounds <$> parseJSON v
 
 -- ------------------------------------------------------------------------
 
