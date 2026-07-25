@@ -54,9 +54,6 @@ loadProblemList = do
   pss <- loadProbStatList
   sequence [loadProblem $ pstatSlug ps | ps <- pss]
 
-lookupProbStat :: Eq a => (ProbStat -> a) -> a -> [ProbStat] -> Maybe ProbStat
-lookupProbStat f x = find (\p -> f p == x)
-
 submit' :: ProbStat -> Maybe String -> IO ()
 submit' ps mayFn = do
       hPutStrLn stderr $ "** generating submission request for '" ++ tag ++ "'"
@@ -80,7 +77,7 @@ submit' ps mayFn = do
 submit :: String -> Maybe String -> IO ()
 submit key mayFn = do
   ps <- loadProbStatList
-  let lookup' = lookupProbStat pstatSlug key ps <|> lookupProbStat pstatName key ps
-  case lookup' of
+  let lookupPS f = find ((== key) . f) ps
+  case lookupPS pstatSlug <|> lookupPS pstatName of
     Nothing  -> fail $ "problem not found for: " ++ key
     Just p   -> submit' p mayFn
