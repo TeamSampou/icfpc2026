@@ -1,0 +1,13 @@
+cradle:
+  stack:
+    - path: "./src"
+      component: "icfpc2026:lib"
+
+    - path: "./app/zzz/add-entry/Main.hs"
+      component: "icfpc2026:exe:add-entry"
+
+    - path: "./app/Main.hs"
+      component: "icfpc2026:exe:icfpc2026-exe"
+
+    - path: "./test"
+      component: "icfpc2026:test:icfpc2026-test"

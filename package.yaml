@@ -45,6 +45,14 @@ library:
   - aeson
 
 executables:
+  history-lesson:
+    main:               Main.hs
+    source-dirs:        app/history-lesson
+    ghc-options:
+    - -rtsopts
+    dependencies:
+    - icfpc2026
+
   icfpc2026-exe:
     main:                Main.hs
     source-dirs:         app
