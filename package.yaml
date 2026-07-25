@@ -25,6 +25,7 @@ dependencies:
 - containers
 - filepath
 - directory
+- process
 
 language: GHC2024
 
