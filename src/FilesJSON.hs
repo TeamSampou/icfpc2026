@@ -57,7 +57,7 @@ loadProblemList = do
   sequence [loadProblem $ pstatSlug ps | ps <- pss]
 
 pp1ProbStat' :: String -> String -> String -> String -> String
-pp1ProbStat' = printf "%-16s%-20s%-9s%s"
+pp1ProbStat' = printf "%-25s%-20s%-9s%s"
 
 pp1ProbStat :: ProbStat -> String
 pp1ProbStat p =
@@ -77,13 +77,15 @@ searchNames w = do
     search p = w `isInfixOf` pstatSlug p || w `isInfixOf` lower (pstatName p)
     lower = map toLower
 
-pp1Problem' :: String -> String -> String -> String -> String
-pp1Problem' = printf "%-16s%-16s%-13s%s"
+pp1Problem' :: String -> String -> String -> String -> String -> String -> String
+pp1Problem' = printf "%-25s%-16s%-9s%-7s%-13s%s"
 
 pp1Problem :: Problem -> String
-pp1Problem p = pp1Problem' (probSlug p) (probScoring p) setName desc
+pp1Problem p = pp1Problem' (probSlug p) (probScoring p) tickCap ustrict setName desc
   where
     name = q (probName p)
+    tickCap = maybe "null" show (probTickCap p)
+    ustrict = if probUberStrict p then "true" else "false"
     setName = case probProblemSetName p of
       "Practice Problems (Ungraded)"  -> "'(Ungraded)'"
       sn                              -> q sn
@@ -93,7 +95,7 @@ pp1Problem p = pp1Problem' (probSlug p) (probScoring p) setName desc
 viewProblems :: IO ()
 viewProblems = do
   ps <- loadProblemList
-  let hd = pp1Problem' "slug" "scoring" "problem-set" "description"
+  let hd = pp1Problem' "slug" "scoring" "tick-cap" "strict" "problem-set" "description"
       xs = map pp1Problem $ sortOn probProblemSetName ps
   mapM_ putStrLn $ hd : "" : xs
 
