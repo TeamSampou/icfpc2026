@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.39.6.
+-- This file has been generated from package.yaml by hpack version 0.38.3.
 --
 -- see: https://github.com/sol/hpack
 
@@ -43,6 +43,8 @@ library
     , containers
     , directory
     , filepath
+    , process
+    , time
   default-language: GHC2024
 
 executable add-entry
@@ -61,6 +63,8 @@ executable add-entry
     , directory
     , filepath
     , icfpc2026
+    , process
+    , time
   default-language: GHC2024
 
 executable history-lesson
@@ -79,6 +83,8 @@ executable history-lesson
     , directory
     , filepath
     , icfpc2026
+    , process
+    , time
   default-language: GHC2024
 
 executable icfpc2026-exe
@@ -98,6 +104,8 @@ executable icfpc2026-exe
     , dotenv
     , filepath
     , icfpc2026
+    , process
+    , time
   default-language: GHC2024
 
 test-suite icfpc2026-test
@@ -118,4 +126,6 @@ test-suite icfpc2026-test
     , dotenv
     , filepath
     , icfpc2026
+    , process
+    , time
   default-language: GHC2024

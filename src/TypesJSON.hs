@@ -1,3 +1,4 @@
+{-# LANGUAGE GeneralizedNewtypeDeriving #-}
 {-# LANGUAGE DeriveGeneric #-}
 {-# OPTIONS -Wno-missing-export-lists #-}
 
@@ -28,9 +29,12 @@ customOptions prefix =
 
 -- ------------------------------------------------------------------------
 
+newtype ProblemId = ProblemId String
+  deriving (Eq, Ord, Show, ToJSON, FromJSON)
+
 data ProbStat =
   ProbStat
-  { pstatId                :: String
+  { pstatId                :: ProblemId
   , pstatSlug              :: String
   , pstatName              :: String
   , pstatProblemSetName    :: String
@@ -131,7 +135,7 @@ instance FromJSON ProbTestData where
 
 data Problem =
   Problem
-  { probId             :: String
+  { probId             :: ProblemId
   , probSlug           :: String
   , probName           :: String
   , probDescription    :: String
@@ -151,5 +155,20 @@ instance ToJSON Problem where
 
 instance FromJSON Problem where
   parseJSON = genericParseJSON (customOptions "prob")
+
+-- ------------------------------------------------------------------------
+
+data Submit =
+  Submit
+  { submitProblemId :: ProblemId
+  , submitProgram :: String
+  }
+  deriving (Show, Generic)
+
+instance ToJSON Submit where
+  toEncoding = genericToEncoding (customOptions "submit")
+
+instance FromJSON Submit where
+  parseJSON = genericParseJSON (customOptions "submit")
 
 -- ------------------------------------------------------------------------
