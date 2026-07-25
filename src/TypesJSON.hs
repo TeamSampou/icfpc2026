@@ -135,18 +135,19 @@ instance FromJSON ProbTestData where
 
 data Problem =
   Problem
-  { probId             :: ProblemId
-  , probSlug           :: String
-  , probName           :: String
-  , probDescription    :: String
-  , probExtraNotes     :: String
-  , probIo             :: ProbIO
-  , probProblemSetName :: String
-  , probPublicTestData :: [ProbTestData]
-  , probStatus         :: String
-  , probScoring        :: String
-  -- , probTickCap :: Maybe _
+  { probId               :: ProblemId
+  , probSlug             :: String
+  , probName             :: String
+  , probDescription      :: String
+  , probExtraNotes       :: String
+  , probIo               :: ProbIO
+  , probProblemSetName   :: String
+  , probPublicTestData   :: [ProbTestData]
+  , probStatus           :: String
+  , probScoring          :: String
+  , probTickCap          :: Maybe Int
   , probPrivateTestCount :: Int
+  , probUberStrict       :: Bool
   }
   deriving (Show, Generic)
 
