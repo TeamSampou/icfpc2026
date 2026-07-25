@@ -4,6 +4,7 @@ module FilesJSON where
 
 import Control.Applicative
 import qualified Data.ByteString.Lazy.Char8 as L8
+import Data.Char (toLower)
 import Data.List
 import Data.Time
 import System.FilePath ((</>), (<.>))
@@ -11,6 +12,7 @@ import System.IO (hPutStrLn, stderr)
 import System.IO.Error
 import System.Directory (createDirectoryIfMissing)
 import System.Process (readProcess)
+import Text.Printf
 
 import Data.Aeson
 
@@ -53,6 +55,27 @@ loadProblemList :: IO [Problem]
 loadProblemList = do
   pss <- loadProbStatList
   sequence [loadProblem $ pstatSlug ps | ps <- pss]
+
+pp1ProbStat' :: String -> String -> String -> String -> String
+pp1ProbStat' = printf "%-16s%-20s%-9s%s"
+
+pp1ProbStat :: ProbStat -> String
+pp1ProbStat p =
+    pp1ProbStat' (pstatSlug p) name (pstatStatus p) setName
+  where
+    name = q (pstatName p)
+    setName = q (pstatProblemSetName p)
+    q s = "'" ++ s ++ "'"
+
+searchNames :: String -> IO ()
+searchNames w = do
+  ps <- loadProbStatList
+  let hd = pp1ProbStat' "slug" "name" "status" "problem-set"
+      xs = map pp1ProbStat $ sortOn pstatProblemSetName $ filter search ps
+  mapM_ putStrLn $ hd : "" : xs
+  where
+    search p = w `isInfixOf` pstatSlug p || w `isInfixOf` lower (pstatName p)
+    lower = map toLower
 
 submit' :: ProbStat -> Maybe String -> IO ()
 submit' ps mayFn = do
