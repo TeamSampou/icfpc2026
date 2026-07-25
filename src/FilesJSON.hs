@@ -57,11 +57,11 @@ loadProblemList = do
 lookupProbStat :: Eq a => (ProbStat -> a) -> a -> [ProbStat] -> Maybe ProbStat
 lookupProbStat f x = find (\p -> f p == x)
 
-submit' :: ProbStat -> IO ()
-submit' ps = do
-      hPutStrLn stderr $ "** generating submission request for '" ++ pslug ++ "'"
+submit' :: ProbStat -> Maybe String -> IO ()
+submit' ps mayFn = do
+      hPutStrLn stderr $ "** generating submission request for '" ++ tag ++ "'"
       json <- getSubmit
-      hPutStrLn stderr $ "** sending submission request for '" ++ pslug ++ "'"
+      hPutStrLn stderr $ "** sending submission request for '" ++ tag ++ "'"
       doSubmit json
   where
     doSubmit json = do
@@ -71,15 +71,16 @@ submit' ps = do
       writeFile (outPath ts) out
     outPath ts = transactionDir </> (pslug ++ formatTime defaultTimeLocale "_%d-%H%M%S_out" ts) <.> "json"
     getSubmit = do
-      source <- readFile (solutionDir </> pslug <.> "man")
+      source <- readFile (solutionDir </> maybe pslug id mayFn <.> "man")
       pure $ L8.unpack $ encode (Submit (pstatId ps) source)
+    tag = maybe pslug (\m -> pslug ++ "(" ++ m ++ ")") mayFn
     pslug = pstatSlug ps
 
 
-submit :: String -> IO ()
-submit key = do
+submit :: String -> Maybe String -> IO ()
+submit key mayFn = do
   ps <- loadProbStatList
   let lookup' = lookupProbStat pstatSlug key ps <|> lookupProbStat pstatName key ps
   case lookup' of
     Nothing  -> fail $ "problem not found for: " ++ key
-    Just p   -> submit' p
+    Just p   -> submit' p mayFn
