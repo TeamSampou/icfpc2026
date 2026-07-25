@@ -44,6 +44,7 @@ library
     , directory
     , filepath
     , process
+    , time
   default-language: GHC2024
 
 executable add-entry
@@ -63,6 +64,7 @@ executable add-entry
     , filepath
     , icfpc2026
     , process
+    , time
   default-language: GHC2024
 
 executable history-lesson
@@ -82,6 +84,7 @@ executable history-lesson
     , filepath
     , icfpc2026
     , process
+    , time
   default-language: GHC2024
 
 executable icfpc2026-exe
@@ -102,6 +105,7 @@ executable icfpc2026-exe
     , filepath
     , icfpc2026
     , process
+    , time
   default-language: GHC2024
 
 test-suite icfpc2026-test
@@ -123,4 +127,5 @@ test-suite icfpc2026-test
     , filepath
     , icfpc2026
     , process
+    , time
   default-language: GHC2024

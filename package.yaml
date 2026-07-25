@@ -26,6 +26,7 @@ dependencies:
 - filepath
 - directory
 - process
+- time
 
 language: GHC2024
 
