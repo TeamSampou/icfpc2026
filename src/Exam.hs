@@ -316,3 +316,7 @@ enc' text =
   in "+" ++ replicate n '-' ++ "+\n" ++
      "|" ++ x ++ "|\n" ++
      "+" ++ replicate n '-' ++ "+\n"
+
+enc'' :: String -> String
+enc'' text = let body = "`96`W" ++ concatMap (\c -> enc c ++ "S") text ++ "H"
+             in "+--+\n" ++ "|@v|\n" ++ unlines (map (\c -> "| " ++ [c] ++ "|") body) ++ "+--+\n"
