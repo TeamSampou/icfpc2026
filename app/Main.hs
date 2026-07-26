@@ -1,6 +1,7 @@
-module Main (main) where
+module Main where
 
 import Lib
+import Exam
 
 main :: IO ()
-main = someFunc
+main = putStr . unlines $ makeLayout [0..99]
