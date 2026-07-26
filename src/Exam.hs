@@ -1,7 +1,9 @@
 module Exam where
 
+import Data.Char (ord)
 import Data.Map (Map)
 import Data.Set (Set)
+import Data.Bits (xor)
 
 import Prelude hiding (div, subtract)
 
@@ -295,3 +297,22 @@ stack4Layout size =  hcat [ fanout height
         hq2 = length q2
         hq3 = length q3
         height = hq0 + hq1 + hq2 + hq3
+
+history :: String
+history = "1996: Philadelphia, PA, USA \"Optimality and inefficiency: What isn't a cost model of the lambda calculus?\" (Julia Lawall and Harry Mairson); 1997: Amsterdam, Netherlands \"Functional reactive animation\" (Conal Elliott and Paul Hudak); 1998: Baltimore, MD, USA \"Cayenne - a language with dependent types\" (Lennart Augustsson); 1999: Paris, France \"Haskell and XML: Generic combinators or type-based translation?\" (Malcolm Wallace and Colin Runciman); 2000: Montreal, Canada \"QuickCheck: a lightweight tool for random testing of Haskell programs\" (Koen Claessen and John Hughes); 2001: Florence, Italy \"Recursive Structures for Standard ML\" (Claudio Russo); 2002: Pittsburgh, PA, USA \"Contracts for higher-order functions\" (Robert Findler and Matthias Felleisen); 2003: Uppsala, Sweden \"MLF: Raising ML to the Power of System F\" (Didier Le Botlan and Didier Remy); 2004: Snowbird, UT, USA \"Scrap More Boilerplate: Reflection, Zips, and Generalised Casts\" (Ralf Lammel and Simon Peyton Jones); 2005: Tallinn, Estonia \"Associated Type Synonyms\" (Manuel M. T. Chakravarty, Gabriele Keller, and Simon Peyton Jones); 2006: Portland, OR, USA \"Simple unification-based type inference for GADTs\" (Simon Peyton Jones, Dimitrios Vytiniotis, Stephanie Weirich, and Geoffrey Washburn); 2007: Freiburg, Germany \"Ott: Effective Tool Support for the Working Semanticist\" (Peter Sewell, Francesco Zappa Nardelli, Scott Owens, Gilles Peskine, Thomas Ridge, Susmit Sarkar, and Rok Strnisa); 2008: Victoria, BC, Canada \"Parametric higher-order abstract syntax for mechanized semantics\" (Adam Chlipala); 2009: Edinburgh, UK \"Runtime Support for Multicore Haskell\" (Simon Marlow, Simon Peyton Jones, and Satnam Singh); 2010: Baltimore, MD, USA \"Abstracting abstract machines\" (David Van Horn and Matthew Might); 2011: Tokyo, Japan \"Frenetic: a network programming language\" (Nate Foster, Rob Harrison, Michael Freedman, Christopher Monsanto, Jennifer Rexford, Alex Story, and David Walker); 2012: Copenhagen, Denmark \"Addressing covert termination and timing channels in concurrent information flow systems\" (Deian Stefan, Alejandro Russo, Pablo Buiras, Amit Levy, John C. Mitchell and David Mazieres); 2013: Boston, MA, USA \"Handlers in Action\" (Ohad Kammar, Sam Lindley, and Nicolas Oury); 2014: Gothenburg, Sweden \"Refinement Types for Haskell\" (Niki Vazou, Eric L. Seidel, Ranjit Jhala, Dimitrios Vytiniotis, and Simon Peyton-Jones); 2015: Vancouver, BC, Canada \"1ML - core and modules united (F-ing first-class modules)\" (Andreas Rossberg); 2016: Nara, Japan; 2017: Oxford, UK; 2018: St. Louis, MO, USA; 2019: Berlin, Germany; 2020: Jersey City, NJ, USA (virtual); 2021: Daejeon, South Korea (virtual); 2022: Ljubljana, Slovenia; 2023: Seattle, WA, USA; 2024: Milan, Italy; 2025: Singapore, Singapore; 2026: Indianapolis, IN, USA"
+
+enc :: Char -> String
+enc c = let fc = f c
+            gc = g c
+        in if length fc < length gc then fc else gc
+  where
+    f c = let n = ord c in if n < 10 then show n else "`" ++ show n ++ "`"
+    g c = let n = ord c `xor` 96 in if n < 10 then show n ++ "~" else "`" ++ show n ++ "`~"
+
+enc' :: String -> String
+enc' text =
+  let x = "@`96`W" ++ concatMap (\c -> enc c ++ "S") text ++ "H"
+      n = length x
+  in "+" ++ replicate n '-' ++ "+\n" ++
+     "|" ++ x ++ "|\n" ++
+     "+" ++ replicate n '-' ++ "+\n"
