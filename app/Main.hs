@@ -4,4 +4,5 @@ import Lib
 import Exam
 
 main :: IO ()
-main = putStr . unlines $ makeLayout [0..99]
+main = do
+  putStr . unlines $ stack2Layout 100
