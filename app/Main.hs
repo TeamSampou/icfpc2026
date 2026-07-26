@@ -5,4 +5,4 @@ import Exam
 
 main :: IO ()
 main = do
-  putStr . unlines $ stack4Layout 104 -- 13 * 8
+  putStr . unlines $ stack2Layout 100
