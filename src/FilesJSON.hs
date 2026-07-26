@@ -18,10 +18,15 @@ import Data.Aeson
 
 import TypesJSON
 
-loadProbStatList :: IO [ProbStat]
-loadProbStatList = do
+loadProbStatList' :: IO [ProbStat]
+loadProbStatList' = do
   bs <- L8.readFile "list-problem.json"
   either fail pure $ eitherDecode bs
+
+loadProbStatList :: IO [ProbStat]
+loadProbStatList = do
+  sortOn sortKey <$> loadProbStatList'
+  where sortKey = (,) <$> pstatProblemSetName <*> pstatOrderInSet
 
 type PSlug = String
 
@@ -71,7 +76,7 @@ searchNames :: String -> IO ()
 searchNames w = do
   ps <- loadProbStatList
   let hd = pp1ProbStat' "slug" "name" "status" "problem-set"
-      xs = map pp1ProbStat $ sortOn pstatProblemSetName $ filter search ps
+      xs = map pp1ProbStat $ filter search ps
   mapM_ putStrLn $ hd : "" : xs
   where
     search p = w `isInfixOf` pstatSlug p || w `isInfixOf` lower (pstatName p)
@@ -103,7 +108,7 @@ viewProblems' maySZ = do
         | Just {} <- maySZ  = "description"
         | otherwise         = ""
       hd = pp1Problem' "slug" "scoring" "tick-cap" "strict" "problem-set" desch
-      xs = map (pp1Problem maySZ) $ sortOn probProblemSetName ps
+      xs = map (pp1Problem maySZ) ps
   mapM_ putStrLn $ hd : "" : xs
 
 viewProblems :: IO ()
