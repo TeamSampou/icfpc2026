@@ -1,6 +1,6 @@
 cabal-version: 2.2
 
--- This file has been generated from package.yaml by hpack version 0.39.6.
+-- This file has been generated from package.yaml by hpack version 0.38.3.
 --
 -- see: https://github.com/sol/hpack
 
@@ -103,6 +103,26 @@ executable icfpc2026-exe
     , containers
     , directory
     , dotenv
+    , filepath
+    , icfpc2026
+    , process
+    , time
+  default-language: GHC2024
+
+executable submit
+  main-is: Main.hs
+  other-modules:
+      Paths_icfpc2026
+  autogen-modules:
+      Paths_icfpc2026
+  hs-source-dirs:
+      app/submit
+  ghc-options: -Wall -Wcompat -Widentities -Wincomplete-record-updates -Wincomplete-uni-patterns -Wmissing-export-lists -Wmissing-home-modules -Wpartial-fields -Wredundant-constraints -rtsopts
+  build-depends:
+      base >=4.7 && <5
+    , bytestring
+    , containers
+    , directory
     , filepath
     , icfpc2026
     , process

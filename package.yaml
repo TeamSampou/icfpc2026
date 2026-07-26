@@ -55,6 +55,14 @@ executables:
     dependencies:
     - icfpc2026
 
+  submit:
+    main:               Main.hs
+    source-dirs:        app/submit
+    ghc-options:
+    - -rtsopts
+    dependencies:
+    - icfpc2026
+
   icfpc2026-exe:
     main:                Main.hs
     source-dirs:         app
