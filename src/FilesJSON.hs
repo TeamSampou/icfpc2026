@@ -18,10 +18,15 @@ import Data.Aeson
 
 import TypesJSON
 
-loadProbStatList :: IO [ProbStat]
-loadProbStatList = do
+loadProbStatList' :: IO [ProbStat]
+loadProbStatList' = do
   bs <- L8.readFile "list-problem.json"
   either fail pure $ eitherDecode bs
+
+loadProbStatList :: IO [ProbStat]
+loadProbStatList = do
+  sortOn sortKey <$> loadProbStatList'
+  where sortKey = (,) <$> pstatProblemSetName <*> pstatOrderInSet
 
 type PSlug = String
 
@@ -71,7 +76,7 @@ searchNames :: String -> IO ()
 searchNames w = do
   ps <- loadProbStatList
   let hd = pp1ProbStat' "slug" "name" "status" "problem-set"
-      xs = map pp1ProbStat $ sortOn pstatProblemSetName $ filter search ps
+      xs = map pp1ProbStat $ filter search ps
   mapM_ putStrLn $ hd : "" : xs
   where
     search p = w `isInfixOf` pstatSlug p || w `isInfixOf` lower (pstatName p)
@@ -80,24 +85,34 @@ searchNames w = do
 pp1Problem' :: String -> String -> String -> String -> String -> String -> String
 pp1Problem' = printf "%-25s%-16s%-9s%-7s%-13s%s"
 
-pp1Problem :: Problem -> String
-pp1Problem p = pp1Problem' (probSlug p) (probScoring p) tickCap ustrict setName desc
+type DescSize = Maybe Int
+
+pp1Problem :: DescSize -> Problem -> String
+pp1Problem maySZ p = pp1Problem' (probSlug p) (probScoring p) tickCap ustrict setName desc
   where
-    name = q (probName p)
+    _name = q (probName p)
     tickCap = maybe "null" show (probTickCap p)
     ustrict = if probUberStrict p then "true" else "false"
     setName = case probProblemSetName p of
       "Practice Problems (Ungraded)"  -> "'(Ungraded)'"
       sn                              -> q sn
     q s = "'" ++ s ++ "'"
-    desc = take 40 $ intercalate " " $ lines $ probDescription p
+    desc
+      | Just sz <- maySZ  = take sz $ intercalate " " $ lines $ probDescription p
+      | otherwise         = ""
+
+viewProblems' :: DescSize -> IO ()
+viewProblems' maySZ = do
+  ps <- loadProblemList
+  let desch
+        | Just {} <- maySZ  = "description"
+        | otherwise         = ""
+      hd = pp1Problem' "slug" "scoring" "tick-cap" "strict" "problem-set" desch
+      xs = map (pp1Problem maySZ) ps
+  mapM_ putStrLn $ hd : "" : xs
 
 viewProblems :: IO ()
-viewProblems = do
-  ps <- loadProblemList
-  let hd = pp1Problem' "slug" "scoring" "tick-cap" "strict" "problem-set" "description"
-      xs = map pp1Problem $ sortOn probProblemSetName ps
-  mapM_ putStrLn $ hd : "" : xs
+viewProblems = viewProblems' Nothing
 
 submit' :: ProbStat -> Maybe String -> IO ()
 submit' ps mayFn = do
