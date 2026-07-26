@@ -149,6 +149,22 @@ main = case triangle of
   Just instrs -> putStrLn $ "@" ++ concatMap show instrs ++ "H"
   Nothing     -> putStrLn "Failed to generate instructions."
 
+fanout :: Int -> [String]
+fanout height = [ "+--+"
+                , "|@v|"
+                , "|>v|"
+                , "|.r|"
+                , "|.S|"
+                , "|^<|"
+                , "|  |"
+                ]
+                ++ replicate h "|  |" ++
+                ["+--+"]
+  where h = height - 8
+
+vConnect :: Int -> [Int] -> [String]
+vConnect height ns = map line [1..height]
+  where line i = if i `elem` ns then ">>" else "  "
 
 judge :: Int -> [String]
 judge n = [ "+-------+"
@@ -251,6 +267,14 @@ makeLayout xs = hcat [header s, body ns, tailer e]
         ns = tail (init xs)
 
 stack2Layout :: Int -> [String]
-stack2Layout size = do
-  makeLayout [0,2..size-1]
-  makeLayout [1,3..size-1]
+stack2Layout size =  hcat [ fanout height
+                          , vConnect height [1, hEven + 1]
+                          , evens ++ odds
+                          , vConnect height [hEven, hEven + hOdd]
+                          , fanout height
+                          ]
+  where evens = makeLayout [0,2..size-1]
+        odds  = makeLayout [1,3..size-1]
+        hEven = length evens
+        hOdd  = length odds
+        height = hEven + hOdd
