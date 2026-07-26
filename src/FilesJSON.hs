@@ -114,7 +114,7 @@ viewProblems' maySZ = do
 viewProblems :: IO ()
 viewProblems = viewProblems' Nothing
 
-submit' :: ProbStat -> Maybe String -> IO ()
+submit' :: ProbStat -> Maybe FilePath -> IO ()
 submit' ps mayFn = do
       hPutStrLn stderr $ "** generating submission request for '" ++ tag ++ "'"
       json <- getSubmit
@@ -128,13 +128,12 @@ submit' ps mayFn = do
       writeFile (outPath ts) out
     outPath ts = transactionDir </> (pslug ++ formatTime defaultTimeLocale "_%d-%H%M%S_out" ts) <.> "json"
     getSubmit = do
-      source <- readFile (solutionDir </> maybe pslug id mayFn <.> "man")
+      source <- readFile (maybe (solutionDir </> pslug <.> "man") id mayFn)
       pure $ L8.unpack $ encode (Submit (pstatId ps) source)
     tag = maybe pslug (\m -> pslug ++ "(" ++ m ++ ")") mayFn
     pslug = pstatSlug ps
 
-
-submit :: String -> Maybe String -> IO ()
+submit :: String -> Maybe FilePath -> IO ()
 submit key mayFn = do
   ps <- loadProbStatList
   let lookupPS f = find ((== key) . f) ps
