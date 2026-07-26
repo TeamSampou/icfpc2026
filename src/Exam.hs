@@ -156,11 +156,10 @@ fanout height = [ "+--+"
                 , "|.R|"
                 , "|.S|"
                 , "|^<|"
-                , "|  |"
                 ]
                 ++ replicate h "|  |" ++
                 ["+--+"]
-  where h = height - 8
+  where h = height - 7
 
 vConnect :: Int -> [Int] -> [String]
 vConnect height ns = map line [1..height]
@@ -175,8 +174,9 @@ judge n = [ "+-------+"
           , "| vdav " ++ show d2 ++ "|"
           , "| r 01 " ++ show d1 ++ "|"
           , "|^ < s " ++ show d0 ++ "|"
-          , "|^<  r-`|"
+          , "|^   r-`|"
           , "|^ S<<^<|"
+          , "|^<     |"
           , "+-------+"
           ]
   where  (d2, r) = divMod n 100
