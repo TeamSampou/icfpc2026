@@ -278,3 +278,20 @@ stack2Layout size =  hcat [ fanout height
         hEven = length evens
         hOdd  = length odds
         height = hEven + hOdd
+
+stack4Layout :: Int -> [String]
+stack4Layout size =  hcat [ fanout height
+                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2]
+                          , q0 ++ q1 ++ q2 ++ q3
+                          , vConnect height $ scanl (+) hq0 [hq1, hq2, hq3]
+                          , fanout height
+                          ]
+  where q0 = makeLayout [0,4..size-1]
+        q1 = makeLayout [1,5..size-1]
+        q2 = makeLayout [2,6..size-1]
+        q3 = makeLayout [3,7..size-1]
+        hq0 = length q0
+        hq1 = length q1
+        hq2 = length q2
+        hq3 = length q3
+        height = hq0 + hq1 + hq2 + hq3
