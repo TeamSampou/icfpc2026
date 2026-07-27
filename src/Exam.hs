@@ -200,12 +200,12 @@ header n = [ "+--------"
            , "|@>Rsv   "
            , "|.^..<   "
            , "+--------"
-           , "^        "
-           , "^        "
-           ]
-           ++ keepValue ++
-           [ "^        "
-           , "^        "
+           , "^<+-----+"
+           , "  |>@rbv|"
+           , "  | vWrd|"
+           , "  |^<  W|"
+           , " >|^ Ws<|"
+           , " ^+-----+"
            ]
            ++ judge n ++
            [ "^        "
@@ -218,29 +218,29 @@ header n = [ "+--------"
            , "v        "
            ]
            ++ judge (n+1) ++
-           [ "v        "
-           , "v        "
-           ]
-           ++ keepValue ++
-           [ " v       "
-           , " v       "
+           [ " v+-----+"
+           , " >|>@rbv|"
+           , "  | vWrd|"
+           , "  |^<  W|"
+           , "  |^ Ws<|"
+           , "v<+-----+"
            , "+--------"
            , "|@>Rsv   "
            , "|.^..<   "
            , "+--------"
            ]
-  
+
 column :: Int -> [String]
 column n = [ "---------"
            , "         "
            , "         "
            , "---------"
-           , "^        "
-           , "^        "
-           ]
-           ++ keepValue ++
-           [ "^        "
-           , "^        "
+           , "+-----+>^"
+           , "|>@rbv|  "
+           , "| vWrd|  "
+           , "|^<  W|  "
+           , "|^ Ws<|< "
+           , "+-----+^ "
            ]
            ++ judge n ++
            [ "^        "
@@ -253,12 +253,12 @@ column n = [ "---------"
            , "v        "
            ]
            ++ judge (n+1) ++
-           [ "v        "
-           , "v        "
-           ]
-           ++ keepValue ++
-           [ " v       "
-           , " v       "
+           [ "+-----+v "
+           , "|>@rbv|< "
+           , "| vWrd|  "
+           , "|^<  W|  "
+           , "|^ Ws<|  "
+           , "+-----+>v"
            , "---------"
            , "         "
            , "         "
@@ -270,12 +270,12 @@ tailer n = [ "--------+"
            , "        |"
            , "        |"
            , "--------+"
-           , "^        "
-           , "^        "
-           ]
-           ++ keepValue ++
-           [ "^        "
-           , "^        "
+           , "+-----+>^"
+           , "|>@rbv|  "
+           , "| vWrd|  "
+           , "|^<  W|  "
+           , "|^ Ws<|< "
+           , "+-----+^ "
            ]
            ++ judge n ++
            [ "^        "
@@ -288,12 +288,12 @@ tailer n = [ "--------+"
            , "v        "
            ]
            ++ judge (n+1) ++
-           [ "v        "
-           , "v        "
-           ]
-           ++ keepValue ++
-           [ " v       "
-           , " v       "
+           [ "+-----+v "
+           , "|>@rbv|< "
+           , "| vWrd|  "
+           , "|^<  W|  "
+           , "|^ Ws<|  "
+           , "+-----+>v"
            , "--------+"
            , "        |"
            , "        |"
@@ -327,6 +327,22 @@ stack2Layout size =  hcat [ fanout height
         hOdd  = length odds
         cH    = hEven `div` 2
         height = hEven + hOdd
+
+stack3Layout :: Int -> [String]
+stack3Layout size =  hcat [ fanout height
+                          , vConnect height $ scanl (+) cH [hq0, hq1]
+                          , concat [q0, q1, q2]
+                          , vConnect height $ scanl (+) 1 [hq0, hq1] ++ scanl (+) hq0 [hq1, hq2]
+                          , fanout height
+                          ]
+  where q0 = makeLayout [0,6..size-1]
+        q1 = makeLayout [2,8..size-1]
+        q2 = makeLayout [4,10..size-1]
+        hq0 = length q0
+        hq1 = length q1
+        hq2 = length q2
+        cH  = hq0 `div` 2
+        height = hq0 + hq1 + hq2
 
 -- head, column, tailer で 3 列以上つまり 8 * 3 = 24 以上のサイズが必要になる。
 -- stack4 は 4 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に8セル持つ。

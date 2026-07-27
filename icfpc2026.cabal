@@ -29,6 +29,7 @@ library
       FilesJSON
       HistoryLessonXor
       Lib
+      MemoryLayout
       TypesJSON
   other-modules:
       Paths_icfpc2026
