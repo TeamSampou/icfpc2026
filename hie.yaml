@@ -6,8 +6,14 @@ cradle:
     - path: "./app/zzz/add-entry/Main.hs"
       component: "icfpc2026:exe:add-entry"
 
+    - path: "./app/history-lesson/Main.hs"
+      component: "icfpc2026:exe:history-lesson"
+
     - path: "./app/Main.hs"
       component: "icfpc2026:exe:icfpc2026-exe"
+
+    - path: "./app/submit/Main.hs"
+      component: "icfpc2026:exe:submit"
 
     - path: "./test"
       component: "icfpc2026:test:icfpc2026-test"
