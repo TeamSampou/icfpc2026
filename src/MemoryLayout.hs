@@ -243,6 +243,27 @@ addIOtoTop xs@(x:_) = io ++ xs
       , "+-+^"
       ]
 
+addIOtoLR :: [String] -> [String]
+addIOtoLR xs =
+  [i ++ x ++ o | (i, x, o) <- zip3 (input ++ repeat ipad) xs (output ++ repeat opad) ]
+  where
+
+    ipad = replicate (length (head input)) ' '
+    input =
+      [ "+-+"
+      , "|I|"
+      , "+-+"
+      , "  v"
+      , "  >"
+      ]
+    opad = replicate (length (head output)) ' '
+    output =
+      [ "+-+"
+      , "|O|"
+      , "+-+"
+      , ">^"
+      ]
+
 --------------------------------------------------------------------------------
 
 mem2_100 :: [String]
