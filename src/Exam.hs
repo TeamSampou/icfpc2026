@@ -194,6 +194,24 @@ keepValue = [ "+-----+  "
             , "|^ Ws<|  "
             , "+-----+  "
             ]
+outputHead :: [String]
+outputHead = [ "+--------"
+             , "|@>Rsv   "
+             , "|.^..<   "
+             , "+--------"
+             ]
+outputBody :: [String]
+outputBody = [ "---------"
+             , "         "
+             , "         "
+             , "---------"
+             ]
+outputTail :: [String]
+outputTail = [ "--------+"
+             , "        |"
+             , "        |"
+             , "--------+"
+             ]
 
 header :: Int -> [String]
 header n = [ "+--------"
@@ -224,10 +242,6 @@ header n = [ "+--------"
            , "  |^<  W|"
            , "  |^ Ws<|"
            , "v<+-----+"
-           , "+--------"
-           , "|@>Rsv   "
-           , "|.^..<   "
-           , "+--------"
            ]
 
 column :: Int -> [String]
@@ -259,10 +273,6 @@ column n = [ "---------"
            , "|^<  W|  "
            , "|^ Ws<|  "
            , "+-----+>v"
-           , "---------"
-           , "         "
-           , "         "
-           , "---------"
            ]
 
 tailer :: Int -> [String]
@@ -294,10 +304,6 @@ tailer n = [ "--------+"
            , "|^<  W|  "
            , "|^ Ws<|  "
            , "+-----+>v"
-           , "--------+"
-           , "        |"
-           , "        |"
-           , "--------+"
            ]
 
 body :: [Int] -> [String]
@@ -307,7 +313,10 @@ hcat :: [[String]] -> [String]
 hcat = foldr1 (zipWith (++))
        
 makeLayout :: [Int] -> [String]
-makeLayout xs = hcat [header s, body ns, tailer e]
+makeLayout xs = let panel = hcat [header s, body ns, tailer e]
+                    panelWidth = length $ head panel
+                    outHeadWidth = length $ head outputHead
+                in panel  -- ++ hcat [outputHead, hcat (replicate (length ns) outputBody), outputTail]
   where s = head xs
         e = last xs
         ns = tail (init xs)
@@ -316,61 +325,67 @@ makeLayout xs = hcat [header s, body ns, tailer e]
 -- stack2 は 2 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に4セル持つ。
 stack2Layout :: Int -> [String]
 stack2Layout size =  hcat [ fanout height
-                          , vConnect height $ scanl (+) cH [hEven]
-                          , evens ++ odds
-                          , vConnect height $ scanl (+) 1 [hEven] ++ scanl (+) hEven [hOdd]
+                          , vConnect height $ scanl (+) (cH+1) [hEven]
+                          , evens ++ odds ++ bottomOutput
+                          , vConnect height $ 1:scanl (+) (hEven+1) [hOdd]
                           , fanout height
                           ]
   where evens = makeLayout [0,4..size-1]
         odds  = makeLayout [2,6..size-1]
+        bottomOutput = hcat [outputHead, hcat (replicate (length [2,6..size-1] - 2) outputBody), outputTail]
         hEven = length evens
         hOdd  = length odds
+        hBot  = length bottomOutput
         cH    = hEven `div` 2
-        height = hEven + hOdd
+        height = hEven + hOdd + hBot
 
 stack3Layout :: Int -> [String]
 stack3Layout size =  hcat [ fanout height
-                          , vConnect height $ scanl (+) cH [hq0, hq1]
-                          , concat [q0, q1, q2]
-                          , vConnect height $ scanl (+) 1 [hq0, hq1] ++ scanl (+) hq0 [hq1, hq2]
+                          , vConnect height $ scanl (+) (cH+1) [hq0, hq1]
+                          , concat [q0, q1, q2, bot]
+                          , vConnect height $ 1:scanl (+) (hq0+1) [hq1, hq2]
                           , fanout height
                           ]
   where q0 = makeLayout [0,6..size-1]
         q1 = makeLayout [2,8..size-1]
         q2 = makeLayout [4,10..size-1]
+        bot = hcat [outputHead, hcat (replicate (length [0,6..size-1] - 2) outputBody), outputTail]
         hq0 = length q0
         hq1 = length q1
         hq2 = length q2
+        hbot = length bot
         cH  = hq0 `div` 2
-        height = hq0 + hq1 + hq2
+        height = hq0 + hq1 + hq2 + hbot
 
 -- head, column, tailer で 3 列以上つまり 8 * 3 = 24 以上のサイズが必要になる。
 -- stack4 は 4 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に8セル持つ。
 stack4Layout :: Int -> [String]
 stack4Layout size =  hcat [ fanout height
-                          , vConnect height $ scanl (+) cH [hq0, hq1, hq2]
-                          , concat [q0, q1, q2, q3]
-                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2] ++ scanl (+) hq0 [hq1, hq2, hq3]
+                          , vConnect height $ scanl (+) (cH+1) [hq0, hq1, hq2]
+                          , concat [q0, q1, q2, q3, bot]
+                          , vConnect height $ 1:scanl (+) (hq0+1) [hq1, hq2, hq3]
                           , fanout height
                           ]
   where q0 = makeLayout [0,8..size-1]
         q1 = makeLayout [2,10..size-1]
         q2 = makeLayout [4,12..size-1]
         q3 = makeLayout [6,14..size-1]
+        bot = hcat [outputHead, hcat (replicate (length [0,8..size-1] - 2) outputBody), outputTail]
         hq0 = length q0
         hq1 = length q1
         hq2 = length q2
         hq3 = length q3
+        hbot = length bot
         cH  = hq0 `div` 2
-        height = hq0 + hq1 + hq2 + hq3
+        height = hq0 + hq1 + hq2 + hq3 + hbot
 
 -- head, column, tailer で 3 列以上つまり 10 * 3 = 30 以上のサイズが必要になる。
 -- stack5 は 5 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に10セル持つ。
 stack5Layout :: Int -> [String]
 stack5Layout size =  hcat [ fanout height
-                          , vConnect height $ scanl (+) cH [hq0, hq1, hq2, hq3]
-                          , concat [q0, q1, q2, q3, q4]
-                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2, hq3] ++ scanl (+) hq0 [hq1, hq2, hq3, hq4]
+                          , vConnect height $ scanl (+) (cH+1) [hq0, hq1, hq2, hq3]
+                          , concat [q0, q1, q2, q3, q4, bot]
+                          , vConnect height $ 1:scanl (+) (hq0+1) [hq1, hq2, hq3, hq4]
                           , fanout height
                           ]
   where q0 = makeLayout [0,10..size-1]
@@ -378,19 +393,21 @@ stack5Layout size =  hcat [ fanout height
         q2 = makeLayout [4,14..size-1]
         q3 = makeLayout [6,16..size-1]
         q4 = makeLayout [8,18..size-1]
+        bot = hcat [outputHead, hcat (replicate (length [0,10..size-1] - 2) outputBody), outputTail]
         hq0 = length q0
         hq1 = length q1
         hq2 = length q2
         hq3 = length q3
         hq4 = length q4
+        hbot = length bot
         cH  = hq0 `div` 2
-        height = sum [hq0, hq1, hq2, hq3, hq4]
+        height = sum [hq0, hq1, hq2, hq3, hq4, hbot]
 
 stack8Layout :: Int -> [String]
 stack8Layout size =  hcat [ fanout height
-                          , vConnect height $ scanl (+) cH [hq0, hq1, hq2, hq3, hq4, hq5, hq6]
-                          , concat [q0, q1, q2, q3, q4, q5, q6, q7]
-                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2, hq3, hq4, hq5, hq6] ++ scanl (+) hq0 [hq1, hq2, hq3, hq4, hq5, hq6, hq7]
+                          , vConnect height $ scanl (+) (cH+1) [hq0, hq1, hq2, hq3, hq4, hq5, hq6]
+                          , concat [q0, q1, q2, q3, q4, q5, q6, q7, bot]
+                          , vConnect height $ 1:scanl (+) (hq0+1) [hq1, hq2, hq3, hq4, hq5, hq6, hq7]
                           , fanout height
                           ]
   where q0 = makeLayout [0,16..size-1]
@@ -401,8 +418,9 @@ stack8Layout size =  hcat [ fanout height
         q5 = makeLayout [10,26..size-1]
         q6 = makeLayout [12,28..size-1]
         q7 = makeLayout [14,30..size-1]
-        hs = map length [q0,q1,q2,q3,q4,q5,q6,q7]
-        [hq0,hq1,hq2,hq3,hq4,hq5,hq6,hq7] = hs
+        bot = hcat [outputHead, hcat (replicate (length [0,16..size-1] - 2) outputBody), outputTail]
+        hs = map length [q0,q1,q2,q3,q4,q5,q6,q7,bot]
+        [hq0,hq1,hq2,hq3,hq4,hq5,hq6,hq7,hbot] = hs
         cH  = hq0 `div` 2
         height = sum hs
 
@@ -411,15 +429,16 @@ stack8Layout size =  hcat [ fanout height
 -- stack16 は 16 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に32セル持つ。
 stack16Layout :: Int -> [String]
 stack16Layout size =  hcat [ fanout height
-                            , vConnect height $ scanl (+) cH hs
-                            , concat [q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, qa, qb, qc, qd, qe, qf]
-                            , vConnect height $ scanl (+) 1 (init hs) ++ scanl (+) hq0 (tail hs)
+                            , vConnect height $ scanl (+) (cH+1) hs
+                            , concat [q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, qa, qb, qc, qd, qe, qf, bot]
+                            , vConnect height $ 1:scanl (+) (hq0+1) (tail hs)
                             , fanout height
                             ]
   where qs = [ makeLayout [i,i+32..size-1] | i <- [0,2..31] ]
         [q0,q1,q2,q3,q4,q5,q6,q7,q8,q9,qa,qb,qc,qd,qe,qf] = qs
-        hs = map length qs
-        [hq0,hq1,hq2,hq3,hq4,hq5,hq6,hq7,hq8,hq9,hqa,hqb,hqc,hqd,hqe,hqf] = hs
+        bot = hcat [outputHead, hcat (replicate (length [0,32..size-1] - 2) outputBody), outputTail]
+        hs = map length (qs ++ [bot])
+        [hq0,hq1,hq2,hq3,hq4,hq5,hq6,hq7,hq8,hq9,hqa,hqb,hqc,hqd,hqe,hqf,hbot] = hs
         cH  = hq0 `div` 2
         height = sum hs
 
