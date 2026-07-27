@@ -500,8 +500,17 @@ makeHalfLayout xs = hcat [halfHeader s, halfBody ns, halfTailer e]
 
 -- makeHalfLayout を使って rows * cols のメモリマットを作る
 singleLayout :: Int -> Int -> [String]
-singleLayout rows cols = concat [makeHalfLayout ns | ns <- nss]
+singleLayout rows cols = hcat [ fanout height
+                              , vConnect height $
+                                scanl (+) 1 [length b | b <- init body]
+                              , concat body
+                              , vConnect height $
+                                scanl (+) (length (head body)) [length b | b <- tail body]
+                              , fanout height
+                              ]
   where nss = [[rows * c + r| c <- [0..cols-1]] | r <- [0..rows-1]]
+        body = [makeHalfLayout ns | ns <- nss]
+        height = sum [length b | b <- body]
 
     
 history :: String

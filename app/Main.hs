@@ -6,4 +6,4 @@ import Exam
 main :: IO ()
 main = do
   -- putStr $ enc'' history
-  putStr . unlines $ stack2Layout 100
+  putStr . unlines $ singleLayout 5 20
