@@ -222,6 +222,29 @@ stack4Layout size =  hcat [ fanout height
 
 --------------------------------------------------------------------------------
 
+addIOtoTop :: [String] -> [String]
+addIOtoTop     []   = error "addIOtop: null input"
+addIOtoTop xs@(x:_) = io ++ xs
+  where
+    io = zipWith
+      (\i o -> i ++ pad ++ o)
+      input output
+    pad = replicate plen ' '
+    plen = width - length (head input) - length (head output)
+    width = length x
+    input =
+      [ "  +-+"
+      , "  |I|"
+      , "v<+-+"
+      ]
+    output =
+      [ "+-+ "
+      , "|O|<"
+      , "+-+^"
+      ]
+
+--------------------------------------------------------------------------------
+
 mem2_100 :: [String]
 mem2_100 = stack2Layout 100
 
