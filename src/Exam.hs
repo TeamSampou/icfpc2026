@@ -5,9 +5,10 @@ import Data.Map (Map)
 import Data.Set (Set)
 import Data.Bits (xor)
 
+{-
+-- | 一旦 R や S だけ考える。近い遠いは気にせず拾えた順に第1引数第2引数として R で処理する
 import Prelude hiding (div, subtract)
 
--- | 一旦 R や S だけ考える。近い遠いは気にせず拾えた順に第1引数第2引数として R で処理する
 data Instr = Lit Integer -- 0-9
            | Add   -- ^ + : regA := regA + regB
            | Mul   -- ^ * : regA := regA * regB
@@ -150,6 +151,8 @@ main :: IO ()
 main = case triangle of
   Just instrs -> putStrLn $ "@" ++ concatMap show instrs ++ "H"
   Nothing     -> putStrLn "Failed to generate instructions."
+-}
+
 
 fanout :: Int -> [String]
 fanout height = [ "+--+"
@@ -194,13 +197,27 @@ keepValue = [ "+-----+  "
 
 header :: Int -> [String]
 header n = [ "+--------"
+           , "|@>Rsv   "
+           , "|.^..<   "
+           , "+--------"
+           , "^        "
+           , "^        "
+           ]
+           ++ keepValue ++
+           [ "^        "
+           , "^        "
+           ]
+           ++ judge n ++
+           [ "^        "
+           , "^        "
+           , "+--------"
            , "|>@Rv    "
            , "|^ S<    "
            , "+--------"
            , "v        "
            , "v        "
            ]
-           ++ judge n ++
+           ++ judge (n+1) ++
            [ "v        "
            , "v        "
            ]
@@ -218,16 +235,30 @@ column n = [ "---------"
            , "         "
            , "         "
            , "---------"
+           , "^        "
+           , "^        "
+           ]
+           ++ keepValue ++
+           [ "^        "
+           , "^        "
+           ]
+           ++ judge n ++
+           [ "^        "
+           , "^        "
+           , "---------"
+           , "         "
+           , "         "
+           , "---------"
            , "v        "
            , "v        "
            ]
-           ++ judge n ++
+           ++ judge (n+1) ++
            [ "v        "
            , "v        "
            ]
            ++ keepValue ++
-           [ "v        "
-           , "v        "
+           [ " v       "
+           , " v       "
            , "---------"
            , "         "
            , "         "
@@ -239,16 +270,30 @@ tailer n = [ "--------+"
            , "        |"
            , "        |"
            , "--------+"
+           , "^        "
+           , "^        "
+           ]
+           ++ keepValue ++
+           [ "^        "
+           , "^        "
+           ]
+           ++ judge n ++
+           [ "^        "
+           , "^        "
+           , "--------+"
+           , "        |"
+           , "        |"
+           , "--------+"
            , "v        "
            , "v        "
            ]
-           ++ judge n ++
+           ++ judge (n+1) ++
            [ "v        "
            , "v        "
            ]
            ++ keepValue ++
-           [ "v        "
-           , "v        "
+           [ " v       "
+           , " v       "
            , "--------+"
            , "        |"
            , "        |"
@@ -267,55 +312,75 @@ makeLayout xs = hcat [header s, body ns, tailer e]
         e = last xs
         ns = tail (init xs)
 
+-- head, column, tailer で 3 列以上つまり 4 * 3 = 12 以上のサイズが必要になる。
 stack2Layout :: Int -> [String]
 stack2Layout size =  hcat [ fanout height
-                          , vConnect height [1, hEven + 1]
+                          , vConnect height $ scanl (+) cH [hEven]
                           , evens ++ odds
-                          , vConnect height [hEven, hEven + hOdd]
+                          , vConnect height $ scanl (+) 1 [hEven] ++ scanl (+) hEven [hOdd]
                           , fanout height
                           ]
-  where evens = makeLayout [0,2..size-1]
-        odds  = makeLayout [1,3..size-1]
+  where evens = makeLayout [0,4..size-1]
+        odds  = makeLayout [2,6..size-1]
         hEven = length evens
         hOdd  = length odds
+        cH    = hEven `div` 2
         height = hEven + hOdd
 
+-- head, column, tailer で 3 列以上つまり 8 * 3 = 24 以上のサイズが必要になる。
 stack4Layout :: Int -> [String]
 stack4Layout size =  hcat [ fanout height
-                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2]
-                          , q0 ++ q1 ++ q2 ++ q3
-                          , vConnect height $ scanl (+) hq0 [hq1, hq2, hq3]
+                          , vConnect height $ scanl (+) cH [hq0, hq1, hq2]
+                          , concat [q0, q1, q2, q3]
+                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2] ++ scanl (+) hq0 [hq1, hq2, hq3]
                           , fanout height
                           ]
-  where q0 = makeLayout [0,4..size-1]
-        q1 = makeLayout [1,5..size-1]
-        q2 = makeLayout [2,6..size-1]
-        q3 = makeLayout [3,7..size-1]
+  where q0 = makeLayout [0,8..size-1]
+        q1 = makeLayout [2,10..size-1]
+        q2 = makeLayout [4,12..size-1]
+        q3 = makeLayout [6,14..size-1]
         hq0 = length q0
         hq1 = length q1
         hq2 = length q2
         hq3 = length q3
+        cH  = hq0 `div` 2
         height = hq0 + hq1 + hq2 + hq3
 
-
+-- head, column, tailer で 3 列以上つまり 10 * 3 = 30 以上のサイズが必要になる。
 stack5Layout :: Int -> [String]
 stack5Layout size =  hcat [ fanout height
-                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2, hq3]
-                          , q0 ++ q1 ++ q2 ++ q3 ++ q4
-                          , vConnect height $ scanl (+) hq0 [hq1, hq2, hq3, hq4]
+                          , vConnect height $ scanl (+) cH [hq0, hq1, hq2, hq3]
+                          , concat [q0, q1, q2, q3, q4]
+                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2, hq3] ++ scanl (+) hq0 [hq1, hq2, hq3, hq4]
                           , fanout height
                           ]
-  where q0 = makeLayout [0,5..size-1]
-        q1 = makeLayout [1,6..size-1]
-        q2 = makeLayout [2,7..size-1]
-        q3 = makeLayout [3,8..size-1]
-        q4 = makeLayout [4,9..size-1]
+  where q0 = makeLayout [0,10..size-1]
+        q1 = makeLayout [2,12..size-1]
+        q2 = makeLayout [4,14..size-1]
+        q3 = makeLayout [6,16..size-1]
+        q4 = makeLayout [8,18..size-1]
         hq0 = length q0
         hq1 = length q1
         hq2 = length q2
         hq3 = length q3
         hq4 = length q4
-        height = hq0 + hq1 + hq2 + hq3 + hq4
+        cH  = hq0 `div` 2
+        height = sum [hq0, hq1, hq2, hq3, hq4]
+
+-- head, column, tailer で 3 列以上つまり 32 * 3 = 96 以上のサイズが必要になる。
+stack16Layout :: Int -> [String]
+stack16Layout size =  hcat [ fanout height
+                            , vConnect height $ scanl (+) cH hs
+                            , concat [q0, q1, q2, q3, q4, q5, q6, q7, q8, q9, qa, qb, qc, qd, qe, qf]
+                            , vConnect height $ scanl (+) 1 (init hs) ++ scanl (+) hq0 (tail hs)
+                            , fanout height
+                            ]
+  where qs = [ makeLayout [i,i+32..size-1] | i <- [0,2..31] ]
+        [q0,q1,q2,q3,q4,q5,q6,q7,q8,q9,qa,qb,qc,qd,qe,qf] = qs
+        hs = map length qs
+        [hq0,hq1,hq2,hq3,hq4,hq5,hq6,hq7,hq8,hq9,hqa,hqb,hqc,hqd,hqe,hqf] = hs
+        cH  = hq0 `div` 2
+        height = sum hs
 
 
 
