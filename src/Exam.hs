@@ -370,6 +370,27 @@ stack5Layout size =  hcat [ fanout height
         cH  = hq0 `div` 2
         height = sum [hq0, hq1, hq2, hq3, hq4]
 
+stack8Layout :: Int -> [String]
+stack8Layout size =  hcat [ fanout height
+                          , vConnect height $ scanl (+) cH [hq0, hq1, hq2, hq3, hq4, hq5, hq6]
+                          , concat [q0, q1, q2, q3, q4, q5, q6, q7]
+                          , vConnect height $ scanl (+) 1 [hq0, hq1, hq2, hq3, hq4, hq5, hq6] ++ scanl (+) hq0 [hq1, hq2, hq3, hq4, hq5, hq6, hq7]
+                          , fanout height
+                          ]
+  where q0 = makeLayout [0,16..size-1]
+        q1 = makeLayout [2,18..size-1]
+        q2 = makeLayout [4,20..size-1]
+        q3 = makeLayout [6,22..size-1]
+        q4 = makeLayout [8,24..size-1]
+        q5 = makeLayout [10,26..size-1]
+        q6 = makeLayout [12,28..size-1]
+        q7 = makeLayout [14,30..size-1]
+        hs = map length [q0,q1,q2,q3,q4,q5,q6,q7]
+        [hq0,hq1,hq2,hq3,hq4,hq5,hq6,hq7] = hs
+        cH  = hq0 `div` 2
+        height = sum hs
+
+
 -- head, column, tailer で 3 列以上つまり 32 * 3 = 96 以上のサイズが必要になる。
 -- stack16 は 16 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に32セル持つ。
 stack16Layout :: Int -> [String]
@@ -386,12 +407,15 @@ stack16Layout size =  hcat [ fanout height
         cH  = hq0 `div` 2
         height = sum hs
 
+-- 10 * 10 = 100 メモリマット
+mem100 :: [String]
+mem100 = stack5Layout 100
 -- 8 * 16 = 128 メモリマット
 mem128 :: [String]
 mem128 = stack4Layout 128
 -- 16 * 16 = 256 メモリマット
 mem256 :: [String]
-mem256 = stack4Layout 256
+mem256 = stack8Layout 256
 -- 32 * 16 = 512 メモリマット
 mem512 :: [String]
 mem512 = stack16Layout 512
