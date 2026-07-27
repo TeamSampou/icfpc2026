@@ -25,6 +25,7 @@ dependencies:
 - containers
 - filepath
 - directory
+- split
 - process
 - time
 
