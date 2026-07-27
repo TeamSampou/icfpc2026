@@ -25,6 +25,7 @@ dependencies:
 - containers
 - filepath
 - directory
+- split
 - process
 - time
 
@@ -47,6 +48,14 @@ library:
   - aeson
 
 executables:
+  history:
+    main:               Main.hs
+    source-dirs:        app/history
+    ghc-options:
+    - -rtsopts
+    dependencies:
+    - icfpc2026
+
   history-lesson:
     main:               Main.hs
     source-dirs:        app/history-lesson
