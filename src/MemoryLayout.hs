@@ -182,6 +182,24 @@ stack2Layout size =  hcat [ fanout height
         cH    = hEven `div` 2
         height = hEven + hOdd
 
+-- head, column, tailer で 3 列以上つまり 6 * 3 = 18 以上のサイズが必要になる。
+-- stack3 は 3 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に6セル持つ。
+stack3Layout :: Int -> [String]
+stack3Layout size =  hcat [ fanout height
+                          , vConnect height $ scanl (+) cH [hq0, hq1]
+                          , concat [q0, q1, q2]
+                          , vConnect height $ scanl (+) 1 [hq0, hq1] ++ scanl (+) hq0 [hq1, hq2]
+                          , fanout height
+                          ]
+  where q0 = makeLayout [0,6..size-1]
+        q1 = makeLayout [2,8..size-1]
+        q2 = makeLayout [4,10..size-1]
+        hq0 = length q0
+        hq1 = length q1
+        hq2 = length q2
+        cH  = hq0 `div` 2
+        height = hq0 + hq1 + hq2
+
 -- head, column, tailer で 3 列以上つまり 8 * 3 = 24 以上のサイズが必要になる。
 -- stack4 は 4 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に8セル持つ。
 stack4Layout :: Int -> [String]
@@ -206,3 +224,6 @@ stack4Layout size =  hcat [ fanout height
 
 mem2_100 :: [String]
 mem2_100 = stack2Layout 100
+
+mem3_102 :: [String]
+mem3_102 = stack3Layout 102
