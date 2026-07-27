@@ -444,8 +444,8 @@ mem1024 = stack16Layout 1024
 
 halfHeader :: Int -> [String]
 halfHeader n = [ "+--------"
-               , "|>@Rv    "
-               , "|^ S<    "
+               , "|@>RSv   "
+               , "| ^  <   "
                , "+--------"
                , "v        "
                , "v        "
