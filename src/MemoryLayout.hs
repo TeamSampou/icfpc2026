@@ -63,8 +63,8 @@ header n = [ "+--------"
            [ "^        "
            , "^        "
            , "+--------"
-           , "|>@Rv    "
-           , "|^ S<    "
+           , "|@>RSv   "
+           , "| ^  <   "
            , "+--------"
            , "v        "
            , "v        "
@@ -241,6 +241,27 @@ addIOtoTop xs@(x:_) = io ++ xs
       [ "+-+ "
       , "|O|<"
       , "+-+^"
+      ]
+
+addIOtoLR :: [String] -> [String]
+addIOtoLR xs =
+  [i ++ x ++ o | (i, x, o) <- zip3 (input ++ repeat ipad) xs (output ++ repeat opad) ]
+  where
+
+    ipad = replicate (length (head input)) ' '
+    input =
+      [ "+-+"
+      , "|I|"
+      , "+-+"
+      , "  v"
+      , "  >"
+      ]
+    opad = replicate (length (head output)) ' '
+    output =
+      [ "+-+"
+      , "|O|"
+      , "+-+"
+      , ">^"
       ]
 
 --------------------------------------------------------------------------------
