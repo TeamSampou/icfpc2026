@@ -313,6 +313,7 @@ makeLayout xs = hcat [header s, body ns, tailer e]
         ns = tail (init xs)
 
 -- head, column, tailer で 3 列以上つまり 4 * 3 = 12 以上のサイズが必要になる。
+-- stack2 は 2 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に4セル持つ。
 stack2Layout :: Int -> [String]
 stack2Layout size =  hcat [ fanout height
                           , vConnect height $ scanl (+) cH [hEven]
@@ -328,6 +329,7 @@ stack2Layout size =  hcat [ fanout height
         height = hEven + hOdd
 
 -- head, column, tailer で 3 列以上つまり 8 * 3 = 24 以上のサイズが必要になる。
+-- stack4 は 4 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に8セル持つ。
 stack4Layout :: Int -> [String]
 stack4Layout size =  hcat [ fanout height
                           , vConnect height $ scanl (+) cH [hq0, hq1, hq2]
@@ -347,6 +349,7 @@ stack4Layout size =  hcat [ fanout height
         height = hq0 + hq1 + hq2 + hq3
 
 -- head, column, tailer で 3 列以上つまり 10 * 3 = 30 以上のサイズが必要になる。
+-- stack5 は 5 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に10セル持つ。
 stack5Layout :: Int -> [String]
 stack5Layout size =  hcat [ fanout height
                           , vConnect height $ scanl (+) cH [hq0, hq1, hq2, hq3]
@@ -368,6 +371,7 @@ stack5Layout size =  hcat [ fanout height
         height = sum [hq0, hq1, hq2, hq3, hq4]
 
 -- head, column, tailer で 3 列以上つまり 32 * 3 = 96 以上のサイズが必要になる。
+-- stack16 は 16 rows の制御バスを持つ。制御バスの上下にメモリマットを配置するので縦に32セル持つ。
 stack16Layout :: Int -> [String]
 stack16Layout size =  hcat [ fanout height
                             , vConnect height $ scanl (+) cH hs
